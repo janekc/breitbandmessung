@@ -1,14 +1,17 @@
-FROM node:18-bullseye-slim
+FROM alpine
 
-RUN  apt-get update \
-     && apt-get install -y procps libxss1 chromium \
-     && rm -rf /var/lib/apt/lists/*
+ENV USER "puppeteer"
+ENV TESTDIR /tests
 
-# Install Puppeteer under /node_modules so it's available system-wide
-ADD ./puppeteer_build/package.json ./puppeteer_build/yarn.lock /
-RUN yarn install
+# install packages
+RUN apk add nodejs yarn chromium bash curl
 
-# Create app directory
+# install puppeteer
+RUN yarn add puppeteer
+
+# set user
+RUN adduser -s /bin/bash -g users --disabled-password $USER
+
 WORKDIR /usr/src/app
 
 COPY package.json yarn.lock index.js ./
